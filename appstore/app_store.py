@@ -18,7 +18,7 @@ class AppItem(BaseModel):
 
 
 @router.get("/", tags=["Backend AppStore"])
-async def app_details():
+async def list_apps():
     return "Show AppStore"
 
 
