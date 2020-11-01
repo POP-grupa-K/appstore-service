@@ -1,24 +1,28 @@
 from typing import List, Optional
+from datetime import datetime
 
 from fastapi import APIRouter
 from pydantic import BaseModel
+
+from run import db
+
 
 
 router = APIRouter()
 
 
-class AppItem(BaseModel):
-    uid: Optional[str] = None
-    name: Optional[str] = None
-    img: Optional[str] = None
-    user: Optional[str] = None
-    state: Optional[str] = None
-    tasks: List[str] = []
-    ratings: List[str] = []
+class AppStore(BaseModel):
+    idapp: Optional[str] = None
+    name_app: Optional[str]
+    ranking: Optional[str] = None
+    date_update: Optional[datetime] = None
+    description_app: Optional[str] = None
 
 
 @router.get("/", tags=["Backend AppStore"])
 async def list_apps():
+    test = AppStore(name_app="test")
+    db.add(test)
     return "Show AppStore"
 
 
@@ -32,8 +36,8 @@ async def remove_app(app_uid: str):
     return "Remove app from AppShelf"
 
 
-@router.put("/{app_uid}", response_model=AppItem, tags=["Backend AppStore"])
-async def update_app(app_uid: str, app: AppItem):
+@router.put("/{app_uid}", response_model=AppStore, tags=["Backend AppStore"])
+async def update_app(app_uid: str, app: AppStore):
     # ...
     updated_app = app
     # ...
