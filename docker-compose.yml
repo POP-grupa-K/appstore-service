@@ -6,4 +6,4 @@ services:
     ports:
       - "8005:8005"
     environment:
-      SQLALCHEMY_DATABASE_URL: "postgres://pop:password1@db_url/pop"
+      SQLALCHEMY_DATABASE_URL: "postgres://pop:password1@db/pop"
