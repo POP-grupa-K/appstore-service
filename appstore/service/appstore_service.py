@@ -43,6 +43,9 @@ def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
 def rate_app(app_id: int, rate: int) -> bool:
     app = get_app_by_id(app_id, db)
 
+    if app is None:
+        return False
+    
     app.ranking = rate
 
     db.commit()
