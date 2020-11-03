@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from typing import List
 
 from appstore.model.appstore_model import AppStoreModel
 from appstore.schema.appstore_schema import AppStoreSchema
@@ -37,3 +38,7 @@ def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
 
     db.commit()
     return True
+
+
+def get_all(db: Session) -> List[AppStoreSchema]:
+    return db.query(AppStoreModel).all()

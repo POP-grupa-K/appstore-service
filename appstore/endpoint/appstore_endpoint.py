@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
-from appstore.service.appstore_service import create_app, delete_app, get_app_by_id, update_app
+from appstore.service.appstore_service import create_app, delete_app, get_app_by_id, update_app, get_all
 from run import SessionLocal
 
 router = APIRouter()
@@ -19,8 +19,12 @@ def get_db():
 
 # TODO
 @router.get("/", tags=["Backend AppStore"])
-async def list_apps():
-    return "Show AppStore"
+async def list_apps(db: Session = Depends(get_db)):
+    apps = get_all(db)
+
+    if apps:
+        return apps
+    return "There was an error getting an app list"
 
 
 @router.post("/", tags=["Backend AppStore"])
