@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic.main import BaseModel
 
 
-class AppStore(BaseModel):
+class AppStoreSchema(BaseModel):
 
     name_app: str
     ranking: Optional[int] = None

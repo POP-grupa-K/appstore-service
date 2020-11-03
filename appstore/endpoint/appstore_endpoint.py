@@ -1,8 +1,9 @@
+import str as str
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from appstore.schema.appstore_schema import AppStore as AppStoreSchema
-from appstore.service.appstore_service import create_app, delete_app, get_app_by_id
+from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
+from appstore.service.appstore_service import create_app, delete_app, get_app_by_id, update_app
 from run import SessionLocal
 
 router = APIRouter()
@@ -35,11 +36,12 @@ async def remove_app(id_app: int, db: Session = Depends(get_db)):
 
 #TODO
 @router.put("/{id_app}", response_model=AppStoreSchema, tags=["Backend AppStore"])
-async def update_app(id_app: str, app: AppStoreSchema):
-    # ...
-    updated_app = app
-    # ...
-    return updated_app
+async def update_app(id_app: int, app: AppStoreSchema):
+    res = update_app(app, id_app)
+
+    if res:
+        return "App updated"
+    return "App was not updated"
 
 
 #TODO

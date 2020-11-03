@@ -1,5 +1,7 @@
+str
 fastapi
 typing
 uvicorn
 pydantic
 sqlalchemy
+psycopg2
