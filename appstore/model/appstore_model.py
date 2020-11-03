@@ -1,6 +1,6 @@
 from sqlalchemy import String, Column, DateTime, Integer
 
-from appstore.schema import appstore
+from appstore.schema import appstore_schema
 from run import Base
 
 
@@ -20,5 +20,5 @@ class AppStore(Base):
         self.description_app = description_app
 
     @classmethod
-    def from_schema(cls, appstore_schema: appstore.AppStore):
+    def from_schema(cls, appstore_schema: appstore_schema.AppStore):
         return cls(appstore_schema.name_app, appstore_schema.ranking, appstore_schema.date_update, appstore_schema.description_app)

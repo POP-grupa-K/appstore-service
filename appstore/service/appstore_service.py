@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from appstore.model.appstore import AppStore as AppStoreModel
-from appstore.schema.appstore import AppStore as AppStoreSchema
+from appstore.model.appstore_model import AppStore as AppStoreModel
+from appstore.schema.appstore_schema import AppStore as AppStoreSchema
 
 
 def create_app(app: AppStoreSchema, db: Session) -> int:

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from appstore.schema.appstore import AppStore as AppStoreSchema
-from appstore.service.appstore import create_app, delete_app, get_app_by_id
+from appstore.schema.appstore_schema import AppStore as AppStoreSchema
+from appstore.service.appstore_service import create_app, delete_app, get_app_by_id
 from run import SessionLocal
 
 router = APIRouter()
