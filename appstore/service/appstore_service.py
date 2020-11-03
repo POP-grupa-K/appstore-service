@@ -40,6 +40,15 @@ def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
     return True
 
 
+def rate_app(app_id: int, rate: int) -> bool:
+    app = get_app_by_id(app_id, db)
+
+    app.ranking = rate
+
+    db.commit()
+    return True
+
+
 def get_all(db: Session) -> List[AppStoreSchema]:
     app_models = db.query(AppStoreModel).all()
     # TODO MAP AppStoreModels to AppStoreSchemas
