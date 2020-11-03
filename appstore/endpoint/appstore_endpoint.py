@@ -16,7 +16,8 @@ def get_db():
     finally:
         db.close()
 
-#TODO
+
+# TODO
 @router.get("/", tags=["Backend AppStore"])
 async def list_apps():
     return "Show AppStore"
@@ -34,19 +35,19 @@ async def remove_app(id_app: int, db: Session = Depends(get_db)):
         return "App deleted"
     return "App not found"
 
-#TODO
-@router.put("/{id_app}", response_model=AppStoreSchema, tags=["Backend AppStore"])
-async def update_app(id_app: int, app: AppStoreSchema):
-    res = update_app(app, id_app)
+
+@router.put("/{id_app}", tags=["Backend AppStore"])
+async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db)):
+    res = update_app(id_app, app, db)
 
     if res:
         return "App updated"
     return "App was not updated"
 
 
-#TODO
+# TODO
 @router.post("/{id_app}/rate", tags=["Backend AppStore"])
-async def rate_app(id_app: str):
+async def rate_app(id_app: int):
     return "Rate app"
 
 
