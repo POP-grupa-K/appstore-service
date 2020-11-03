@@ -41,4 +41,6 @@ def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
 
 
 def get_all(db: Session) -> List[AppStoreSchema]:
-    return db.query(AppStoreModel).all()
+    app_models = db.query(AppStoreModel).all()
+    # TODO MAP AppStoreModels to AppStoreSchemas
+    return app_models

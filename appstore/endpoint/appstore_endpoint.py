@@ -1,10 +1,11 @@
 import str as str
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.service.appstore_service import create_app, delete_app, get_app_by_id, update_app, get_all
 from run import SessionLocal
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -23,21 +24,21 @@ async def list_apps(db: Session = Depends(get_db)):
     apps = get_all(db)
 
     if apps:
-        return apps
-    return "There was an error getting an app list"
+        return JSONResponse(status_code=status.HTTP_200_OK, content=apps)
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.post("/", tags=["Backend AppStore"])
 async def add_app(app: AppStoreSchema, db: Session = Depends(get_db)) -> str:
     app_id = create_app(app, db)
-    return f"Application created. Id = {app_id}"
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=app_id)
 
 
 @router.delete("/{id_app}", tags=["Backend AppStore"])
 async def remove_app(id_app: int, db: Session = Depends(get_db)):
     if delete_app(id_app, db):
-        return "App deleted"
-    return "App not found"
+        return JSONResponse(status_code=status.HTTP_200_OK, content=id_app)
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.put("/{id_app}", tags=["Backend AppStore"])
@@ -45,19 +46,20 @@ async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db
     res = update_app(id_app, app, db)
 
     if res:
-        return "App updated"
-    return "App was not updated"
+        return JSONResponse(status_code=status.HTTP_200_OK, content=id_app)
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # TODO
 @router.post("/{id_app}/rate", tags=["Backend AppStore"])
 async def rate_app(id_app: int):
-    return "Rate app"
+    return JSONResponse(status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 @router.get("/{id_app}", tags=["Backend AppStore"])
 async def get_app(id_app: int, db: Session = Depends(get_db)):
     app = get_app_by_id(id_app, db)
+
     if app is not None:
-        return app
-    return "App not found"
+        return JSONResponse(status_code=status.HTTP_200_OK, content=app)
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
