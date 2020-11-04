@@ -6,6 +6,7 @@ from pydantic.main import BaseModel
 
 class AppStoreSchema(BaseModel):
 
+    id_app: Optional[int] = None
     name_app: str
     ranking: Optional[int] = None
     date_update: Optional[datetime] = None

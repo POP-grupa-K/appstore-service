@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Dict
 
 from appstore.model.appstore_model import AppStoreModel
 from appstore.schema.appstore_schema import AppStoreSchema
+from appstore.utils.mapper.appstore_mapper import appstore_model_to_schema
 from appstore.model.rating_model import RatingModel
 from appstore.schema.rating_schema import RatingSchema
 
@@ -52,7 +53,9 @@ def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> int:
     return new_rate.id_rating
 
 
-def get_all(db: Session) -> List[AppStoreSchema]:
+def get_all(db: Session) -> List[Dict]:
     app_models = db.query(AppStoreModel).all()
-    # TODO MAP AppStoreModels to AppStoreSchemas
-    return app_models
+    results = []
+    for app in app_models:
+        results.append(appstore_model_to_schema(app).dict())
+    return results
