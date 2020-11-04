@@ -3,6 +3,8 @@ from typing import List
 
 from appstore.model.appstore_model import AppStoreModel
 from appstore.schema.appstore_schema import AppStoreSchema
+from appstore.model.rating_model import RatingModel
+from appstore.schema.rating_schema import RatingSchema
 
 
 def create_app(app: AppStoreSchema, db: Session) -> int:
@@ -27,7 +29,6 @@ def delete_app(id_app: int, db: Session) -> bool:
 def get_app_by_id(id_app: int, db: Session) -> AppStoreModel:
     return db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app).first()
 
-
 def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
     app = get_app_by_id(app_id, db)
 
@@ -40,16 +41,15 @@ def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
     return True
 
 
-def rate_app(app_id: int, rate: int) -> bool:
-    app = get_app_by_id(app_id, db)
+def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> int:
+    new_rate = RatingModel.from_schema(rate)
 
-    if app is None:
-        return False
-    
-    app.ranking = rate
+    db.add(new_rate)
+    db.commit()
+    db.refresh(new_rate)
 
     db.commit()
-    return True
+    return new_rate.id_rating
 
 
 def get_all(db: Session) -> List[AppStoreSchema]:

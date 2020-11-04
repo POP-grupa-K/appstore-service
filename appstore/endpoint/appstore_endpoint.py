@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
-from appstore.service.appstore_service import create_app, delete_app, get_app_by_id, update_app, get_all
+from appstore.schema.rating_schema import RatingSchema
+from appstore.service.appstore_service import create_app, delete_app, get_app_by_id, update_app, get_all, add_app_rate
 from run import SessionLocal
 from fastapi.responses import JSONResponse
 
@@ -52,8 +53,12 @@ async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db
 
 # TODO
 @router.post("/{id_app}/rate", tags=["Backend AppStore"])
-async def rate_app(id_app: int):
-    return JSONResponse(status_code=status.HTTP_501_NOT_IMPLEMENTED)
+async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
+
+    res = add_app_rate(id_app, rate, db)
+    if res:
+        return JSONResponse(status_code=status.HTTP_200_OK, content=res)
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.get("/{id_app}", tags=["Backend AppStore"])
