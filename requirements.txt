@@ -3,3 +3,4 @@ typing
 uvicorn
 pydantic
 sqlalchemy
+psycopg2
