@@ -22,7 +22,7 @@ def get_db():
 @router.get("/", tags=["Backend AppStore"])
 async def list_apps(db: Session = Depends(get_db)):
     apps = get_all(db)
-    if apps:
+    if apps is not None:
         return JSONResponse(status_code=status.HTTP_200_OK, content=apps)
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
