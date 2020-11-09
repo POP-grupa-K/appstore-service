@@ -42,11 +42,14 @@ async def remove_app(id_app: int, db: Session = Depends(get_db)):
 
 @router.put("/{id_app}", tags=["Backend AppStore"])
 async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db)):
-    res = update_app(id_app, app, db)
+    try:
+        is_updated = update_app(id_app, app, db)
+        if is_updated is not None and is_updated:
+            return JSONResponse(status_code=status.HTTP_200_OK, content=id_app)
 
-    if res:
-        return JSONResponse(status_code=status.HTTP_200_OK, content=id_app)
-    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"App with id = {id_app} was not found.")
+    except Exception as e:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=e)
 
 
 # TODO
