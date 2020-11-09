@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
-from typing import List, Dict
+from typing import List
 
 from appstore.model.appstore_model import AppStoreModel
 from appstore.schema.appstore_schema import AppStoreSchema
-from appstore.utils.mapper.appstore_mapper import appstore_model_to_schema
 from appstore.model.rating_model import RatingModel
 from appstore.schema.rating_schema import RatingSchema
+from appstore.utils.mapper.appstore_mapper import appstore_model_to_dict
 
 
 def create_app(app: AppStoreSchema, db: Session) -> int:
@@ -17,6 +17,30 @@ def create_app(app: AppStoreSchema, db: Session) -> int:
     return new_app.id_app
 
 
+def get_all(db: Session) -> List[AppStoreModel]:
+    app_models = db.query(AppStoreModel).all()
+    return app_models
+
+
+def get_all_as_dict(db: Session):
+    app_models = get_all(db)
+
+    apps = []
+    for app in app_models:
+        apps.append(appstore_model_to_dict(app))
+    return apps
+
+
+def get_app_by_id(id_app: int, db: Session):
+    app = db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app).first()
+    return app
+
+
+def get_app_by_id_as_dict(id_app: int, db: Session):
+    app_model = get_app_by_id(id_app, db)
+    return appstore_model_to_dict(app_model)
+
+
 def delete_app(id_app: int, db: Session) -> bool:
     app = get_app_by_id(id_app, db)
     if app is None:
@@ -25,15 +49,6 @@ def delete_app(id_app: int, db: Session) -> bool:
     db.delete(app)
     db.commit()
     return True
-
-
-def get_app_by_id(id_app: int, db: Session):
-    app = db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app).first()
-
-    if app is None:
-        return None
-
-    return app
 
 
 def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
@@ -59,11 +74,3 @@ def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> int:
 
     db.commit()
     return new_rate.id_rating
-
-
-def get_all(db: Session) -> List[Dict]:
-    app_models = db.query(AppStoreModel).all()
-    results = []
-    for app in app_models:
-        results.append(appstore_model_to_schema(app).dict())
-    return results
