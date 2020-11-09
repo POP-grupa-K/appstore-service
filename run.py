@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from appstore.endpoint import appstore_endpoint, rating_manager
+from appstore.endpoint import appstore_endpoint
 
 app = FastAPI(title="System obliczeń wysokoskalowych")
 
@@ -16,7 +16,6 @@ Base = declarative_base()
 
 if __name__ == "__main__":
     app.include_router(appstore_endpoint.router, prefix="/appstore")
-    app.include_router(rating_manager.router, prefix="/ratings")
 
     uvicorn.run(app, host="0.0.0.0", port=8005)
 
