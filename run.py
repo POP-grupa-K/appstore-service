@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from starlette.middleware.cors import CORSMiddleware
 
-from appstore.endpoint import appstore_endpoint, rating_manager
+from appstore.endpoint import appstore_endpoint
 
 app = FastAPI(title="System obliczeń wysokoskalowych")
 
