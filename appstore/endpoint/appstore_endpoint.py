@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
-from appstore.service.appstore_service import create_app, delete_app, get_app_by_id, update_app, get_all, add_app_rate
-from appstore.utils.mapper.appstore_mapper import appstore_model_to_schema
+from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate, \
+    get_all_as_dict, get_app_by_id_as_dict
 from run import SessionLocal
 from fastapi.responses import JSONResponse
 
@@ -25,9 +25,10 @@ def get_db():
 
 @router.get("/", tags=["Backend AppStore"])
 async def list_apps(db: Session = Depends(get_db)):
-    apps = get_all(db)
+    apps = get_all_as_dict(db)
     if apps is not None:
         return JSONResponse(status_code=status.HTTP_200_OK, content=apps)
+
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -36,6 +37,7 @@ async def add_app(app: AppStoreSchema, db: Session = Depends(get_db)) -> str:
     try:
         app_id = create_app(app, db)
         return JSONResponse(status_code=status.HTTP_201_CREATED, content=app_id)
+
     except Exception as e:
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=e)
 
@@ -77,10 +79,9 @@ async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db
 @router.get("/{id_app}", tags=["Backend AppStore"])
 async def get_app(id_app: int, db: Session = Depends(get_db)):
     try:
-        app = get_app_by_id(id_app, db)
+        app = get_app_by_id_as_dict(id_app, db)
         if app is not None:
-            app_schema = appstore_model_to_schema(app).dict()
-            return JSONResponse(status_code=status.HTTP_200_OK, content=app_schema)
+            return JSONResponse(status_code=status.HTTP_200_OK, content=app)
 
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"App with id = {id_app} was not found.")
     except Exception as e:
