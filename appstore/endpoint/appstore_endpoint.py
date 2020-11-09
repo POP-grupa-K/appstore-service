@@ -29,8 +29,11 @@ async def list_apps(db: Session = Depends(get_db)):
 
 @router.post("/", tags=["Backend AppStore"])
 async def add_app(app: AppStoreSchema, db: Session = Depends(get_db)) -> str:
-    app_id = create_app(app, db)
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=app_id)
+    try:
+        app_id = create_app(app, db)
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content=app_id)
+    except Exception as e:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=e)
 
 
 @router.delete("/{id_app}", tags=["Backend AppStore"])
