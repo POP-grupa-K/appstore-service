@@ -27,9 +27,13 @@ def delete_app(id_app: int, db: Session) -> bool:
     return True
 
 
-def get_app_by_id(id_app: int, db: Session) -> Dict:
+def get_app_by_id(id_app: int, db: Session):
     app = db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app).first()
-    return appstore_model_to_schema(app).dict()
+
+    if app is None:
+        return None
+
+    return app
 
 
 def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
