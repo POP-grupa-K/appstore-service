@@ -30,6 +30,7 @@ def delete_app(id_app: int, db: Session) -> bool:
 def get_app_by_id(id_app: int, db: Session) -> AppStoreModel:
     return db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app).first()
 
+
 def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
     app = get_app_by_id(app_id, db)
 

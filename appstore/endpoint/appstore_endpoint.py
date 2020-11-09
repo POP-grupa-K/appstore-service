@@ -61,8 +61,11 @@ async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db
 
 @router.get("/{id_app}", tags=["Backend AppStore"])
 async def get_app(id_app: int, db: Session = Depends(get_db)):
-    app = get_app_by_id(id_app, db)
 
-    if app is not None:
-        return JSONResponse(status_code=status.HTTP_200_OK, content=app)
-    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    try:
+        app = get_app_by_id(id_app, db)
+        if app is not None:
+            return JSONResponse(status_code=status.HTTP_200_OK, content=app)
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"App with id = {id_app} was not found.")
+    except Exception as e:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=e)
