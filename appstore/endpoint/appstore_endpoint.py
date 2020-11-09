@@ -35,9 +35,14 @@ async def add_app(app: AppStoreSchema, db: Session = Depends(get_db)) -> str:
 
 @router.delete("/{id_app}", tags=["Backend AppStore"])
 async def remove_app(id_app: int, db: Session = Depends(get_db)):
-    if delete_app(id_app, db):
-        return JSONResponse(status_code=status.HTTP_200_OK, content=id_app)
-    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    try:
+        is_deleted = delete_app(id_app, db)
+        if is_deleted is not None and is_deleted:
+            return JSONResponse(status_code=status.HTTP_200_OK, content=id_app)
+
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"App with id = {id_app} was not found.")
+    except Exception as e:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=e)
 
 
 @router.put("/{id_app}", tags=["Backend AppStore"])
@@ -55,7 +60,6 @@ async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db
 # TODO
 @router.post("/{id_app}/rate", tags=["Backend AppStore"])
 async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
-
     res = add_app_rate(id_app, rate, db)
     if res:
         return JSONResponse(status_code=status.HTTP_200_OK, content=res)
@@ -64,7 +68,6 @@ async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db
 
 @router.get("/{id_app}", tags=["Backend AppStore"])
 async def get_app(id_app: int, db: Session = Depends(get_db)):
-
     try:
         app = get_app_by_id(id_app, db)
         if app is not None:

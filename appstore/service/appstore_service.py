@@ -33,7 +33,7 @@ def get_app_by_id(id_app: int, db: Session) -> AppStoreModel:
 
 def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
     app = get_app_by_id(app_id, db)
-    if not app:
+    if app is None:
         return False
 
     app.name_app = updated_app.name_app
