@@ -21,7 +21,6 @@ origins = [
 
 if __name__ == "__main__":
     app.include_router(appstore_endpoint.router, prefix="/appstore")
-    app.include_router(rating_manager.router, prefix="/ratings")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
