@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 import str as str
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -5,6 +8,7 @@ from sqlalchemy.orm import Session
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
 from appstore.service.appstore_service import create_app, delete_app, get_app_by_id, update_app, get_all, add_app_rate
+from appstore.utils.mapper.appstore_mapper import appstore_model_to_schema
 from run import SessionLocal
 from fastapi.responses import JSONResponse
 
@@ -45,6 +49,7 @@ async def remove_app(id_app: int, db: Session = Depends(get_db)):
 
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"App with id = {id_app} was not found.")
     except Exception as e:
+        traceback.print_exc(file=sys.stdout)
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=e)
 
 
@@ -74,7 +79,10 @@ async def get_app(id_app: int, db: Session = Depends(get_db)):
     try:
         app = get_app_by_id(id_app, db)
         if app is not None:
-            return JSONResponse(status_code=status.HTTP_200_OK, content=app)
+            app_schema = appstore_model_to_schema(app).dict()
+            return JSONResponse(status_code=status.HTTP_200_OK, content=app_schema)
+
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"App with id = {id_app} was not found.")
     except Exception as e:
+        traceback.print_exc(file=sys.stdout)
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=e)
