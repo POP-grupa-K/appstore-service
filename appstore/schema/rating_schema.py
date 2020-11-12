@@ -5,7 +5,7 @@ from pydantic.main import BaseModel
 
 
 class RatingSchema(BaseModel):
-    value: int
+    value: float
     id_app: int
     comm: Optional[str] = None
     date_update: Optional[datetime] = None

@@ -1,4 +1,4 @@
-from sqlalchemy import String, Column, DateTime, Integer
+from sqlalchemy import String, Column, DateTime, Integer, Float
 
 from appstore.schema import appstore_schema
 from run import Base
@@ -9,7 +9,7 @@ class AppStoreModel(Base):
 
     id_app = Column('idapp', Integer, primary_key=True)
     name_app = Column(String)
-    ranking = Column(Integer)
+    ranking = Column(Float)
     date_update = Column(DateTime)
     description_app = Column(String)
 

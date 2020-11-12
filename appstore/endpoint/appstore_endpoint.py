@@ -67,7 +67,6 @@ async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=e)
 
 
-# TODO
 @router.post("/{id_app}/rate", tags=["Backend AppStore"])
 async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
     res = add_app_rate(id_app, rate, db)
