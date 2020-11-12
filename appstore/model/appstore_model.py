@@ -12,6 +12,7 @@ class AppStoreModel(Base):
     ranking = Column(Float)
     date_update = Column(DateTime)
     description_app = Column(String)
+    times_used = Column(Integer)
 
     def __init__(self, name_app, ranking, date_update, description_app):
         self.name_app = name_app
