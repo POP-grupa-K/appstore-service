@@ -5,7 +5,7 @@ from appstore.model.appstore_model import AppStoreModel
 from appstore.schema.appstore_schema import AppStoreSchema
 from appstore.model.rating_model import RatingModel
 from appstore.schema.rating_schema import RatingSchema
-from appstore.utils.mapper.appstore_mapper import appstore_model_to_dict
+from appstore.utils.mapper.appstore_mapper import appstore_model_to_schema
 
 
 def create_app(app: AppStoreSchema, db: Session) -> int:
@@ -27,22 +27,21 @@ def get_all_as_dict(db: Session):
 
     apps = []
     for app in app_models:
-        apps.append(appstore_model_to_dict(app))
+        apps.append(None)
     return apps
 
 
-def get_app_by_id(id_app: int, db: Session):
-    app = db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app).first()
-    return app
+def get_app_model(id_app: int, db: Session):
+    return db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app).first()
 
 
-def get_app_by_id_as_dict(id_app: int, db: Session):
-    app_model = get_app_by_id(id_app, db)
-    return appstore_model_to_dict(app_model)
+def get_app_schema(id_app: int, db: Session):
+    app_model = get_app_model(id_app, db)
+    return appstore_model_to_schema(app_model)
 
 
 def delete_app(id_app: int, db: Session) -> bool:
-    app = get_app_by_id(id_app, db)
+    app = get_app_model(id_app, db)
     if app is None:
         return False
 
@@ -52,7 +51,7 @@ def delete_app(id_app: int, db: Session) -> bool:
 
 
 def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
-    app = get_app_by_id(app_id, db)
+    app = get_app_model(app_id, db)
     if app is None:
         return False
 

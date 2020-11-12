@@ -1,11 +1,10 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic.main import BaseModel
+from fastapi_camelcase import CamelModel
 
 
-class AppStoreSchema(BaseModel):
-
+class AppStoreSchema(CamelModel):
     id_app: Optional[int] = None
     name_app: str
     ranking: Optional[int] = None
@@ -14,3 +13,10 @@ class AppStoreSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+    def json(self):
+        json_dict = {}
+        for k, v in self.__dict__.items():
+            json_dict[''.join(word.title() for word in k.split('_'))] = v
+        return json_dict
+

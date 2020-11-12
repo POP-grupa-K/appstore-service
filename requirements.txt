@@ -1,7 +1,9 @@
 str
 fastapi
-typing
+pyhumps
+fastapi_camelcase
 uvicorn
 pydantic
 sqlalchemy
 psycopg2
+typing
