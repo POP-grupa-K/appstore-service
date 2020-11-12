@@ -10,6 +10,7 @@ class AppStoreSchema(CamelModel):
     ranking: Optional[int] = None
     date_update: Optional[datetime] = None
     description_app: Optional[str] = None
+    times_used: Optional[int] = None
 
     class Config:
         orm_mode = True
@@ -17,6 +18,7 @@ class AppStoreSchema(CamelModel):
     def json(self):
         json_dict = {}
         for k, v in self.__dict__.items():
-            json_dict[''.join(word.title() for word in k.split('_'))] = v
+            capitalized = ''.join(word.title() for word in k.split('_'))
+            json_dict[capitalized[0].lower() + capitalized[1:]] = v
         return json_dict
 

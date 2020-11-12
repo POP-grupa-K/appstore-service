@@ -17,17 +17,17 @@ def create_app(app: AppStoreSchema, db: Session) -> int:
     return new_app.id_app
 
 
-def get_all(db: Session) -> List[AppStoreModel]:
+def get_all_apps(db: Session) -> List[AppStoreModel]:
     app_models = db.query(AppStoreModel).all()
     return app_models
 
 
-def get_all_as_dict(db: Session):
-    app_models = get_all(db)
+def get_all_apps_as_json_list(db: Session):
+    app_models = get_all_apps(db)
 
     apps = []
     for app in app_models:
-        apps.append(None)
+        apps.append(appstore_model_to_schema(app).json())
     return apps
 
 
@@ -35,9 +35,9 @@ def get_app_model(id_app: int, db: Session):
     return db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app).first()
 
 
-def get_app_schema(id_app: int, db: Session):
+def get_app_json(id_app: int, db: Session):
     app_model = get_app_model(id_app, db)
-    return appstore_model_to_schema(app_model)
+    return appstore_model_to_schema(app_model).json()
 
 
 def delete_app(id_app: int, db: Session) -> bool:
