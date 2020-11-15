@@ -28,5 +28,5 @@ if __name__ == "__main__":
         allow_methods=["*"],
         allow_headers=["*"]
     )
-    uvicorn.run(app, host="0.0.0.0", port=8005)
+    uvicorn.run(app, host="0.0.0.0", port=8006)
 

@@ -6,4 +6,5 @@ uvicorn
 pydantic
 sqlalchemy
 psycopg2
+python-multipart
 typing
