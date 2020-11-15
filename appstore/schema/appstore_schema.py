@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from random import randrange
 
 from fastapi_camelcase import CamelModel
 
@@ -10,7 +11,7 @@ class AppStoreSchema(CamelModel):
     ranking: Optional[int] = None
     date_update: Optional[datetime] = None
     description_app: Optional[str] = None
-    times_used: Optional[int] = None
+    times_used: Optional[int] = randrange(50)
 
     class Config:
         orm_mode = True
