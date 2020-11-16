@@ -10,7 +10,7 @@ class AppStoreSchema(CamelModel):
     ranking: Optional[int] = None
     date_update: Optional[datetime] = None
     description_app: Optional[str] = None
-    times_used: Optional[int] = None
+    times_used: Optional[int] = 0
 
     class Config:
         orm_mode = True
