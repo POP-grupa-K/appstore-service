@@ -9,12 +9,13 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from appstore.exceptions.appstore_exceptions import UnsupportedMediaTypeException, InvalidFileNameException, \
-    ImageAlreadyExistsException, NoSuchAppException, NoSuchImageException
+    ImageAlreadyExistsException, NoSuchAppException, NoSuchImageException, AppNameExists
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
 from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate, \
     get_all_apps_as_json_list, get_app_json, save_image, get_image, delete_image, update_image
 from appstore.utils.message_encoder.json_message_encoder import encode_to_json_message
+    get_all_apps_as_json_list, get_app_schema, save_image, get_image, delete_image, update_image
 from appstore.utils.validator.file_validator import validate_image
 from run import SessionLocal
 from fastapi.responses import JSONResponse
@@ -45,6 +46,8 @@ async def add_app(app: AppStoreSchema, db: Session = Depends(get_db)) -> str:
         app_id = create_app(app, db)
         return JSONResponse(status_code=status.HTTP_201_CREATED, content=encode_to_json_message(app_id))
 
+    except AppNameExists as e:
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content=f"App with name {app.name_app} exists")
     except Exception as e:
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
 
@@ -70,6 +73,9 @@ async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db
             return JSONResponse(status_code=status.HTTP_200_OK, content=encode_to_json_message(id_app))
 
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=encode_to_json_message(f"App with id = {id_app} was not found."))
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"App with id = {id_app} was not found.")
+    except AppNameExists as e:
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content=f"App with name {app.name_app} exists")
     except Exception as e:
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
 
@@ -90,6 +96,10 @@ async def get_app(id_app: int, db: Session = Depends(get_db)):
             return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(app))
 
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=encode_to_json_message(f"App with id = {id_app} was not found."))
+        app: AppStoreSchema = get_app_schema(id_app, db)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(app))
+    except NoSuchAppException as e:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"No application with id = {id_app}")
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
