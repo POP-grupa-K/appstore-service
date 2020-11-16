@@ -85,11 +85,17 @@ def save_app_image(app_id: int, image: UploadFile, db: Session):
     if get_app_model(app_id, db) is None:
         return False
 
-    new_img = ImageModel(image.file.read(), app_id)
+    # Cut filename because DB accepts only 50 characters
+    cut_filename = image.filename[len(image.filename) - 50:]
+
+    new_img = ImageModel(image.file.read(), cut_filename, app_id)
     db.add(new_img)
     db.commit()
     return True
 
 
 def get_app_image(app_id: int, db: Session) -> ImageModel:
-    return db.query(ImageModel).filter(ImageModel.id_app == app_id).first()
+    image = db.query(ImageModel).filter(ImageModel.id_app == app_id)
+    if image is not None:
+        return image.first()
+    return image
