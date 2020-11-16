@@ -1,7 +1,9 @@
+from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from typing import List
 
 from appstore.model.appstore_model import AppStoreModel
+from appstore.model.image_model import ImageModel
 from appstore.schema.appstore_schema import AppStoreSchema
 from appstore.model.rating_model import RatingModel
 from appstore.schema.rating_schema import RatingSchema
@@ -32,7 +34,10 @@ def get_all_apps_as_json_list(db: Session):
 
 
 def get_app_model(id_app: int, db: Session):
-    return db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app).first()
+    app = db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app)
+    if app:
+        return app.first()
+    return None
 
 
 def get_app_json(id_app: int, db: Session):
@@ -73,3 +78,18 @@ def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> int:
 
     db.commit()
     return new_rate.id_rating
+
+
+def save_app_image(app_id: int, image: UploadFile, db: Session):
+    # check if app exists
+    if get_app_model(app_id, db) is None:
+        return False
+
+    new_img = ImageModel(image.file.read(), app_id)
+    db.add(new_img)
+    db.commit()
+    return True
+
+
+def get_app_image(app_id: int, db: Session) -> ImageModel:
+    return db.query(ImageModel).filter(ImageModel.id_app == app_id).first()
