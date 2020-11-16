@@ -9,7 +9,7 @@ class AppStoreModel(Base):
 
     id_app = Column('idapp', Integer, primary_key=True)
     name_app = Column('name', String)
-    ranking = Column(Float)
+    ranking = Column('ranking', Float)
     date_update = Column('dateupdate', DateTime)
     description_app = Column('description', String)
     times_used = Column('timesused', Integer)
