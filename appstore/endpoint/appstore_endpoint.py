@@ -8,7 +8,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
-from appstore.exceptions.appstore_exceptions import UnsupportedMediaType
+from appstore.exceptions.appstore_exceptions import UnsupportedMediaType, InvalidFileName
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
 from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate, \
@@ -102,6 +102,8 @@ async def upload_app_img(id_app: int, db: Session = Depends(get_db), image: Uplo
         return JSONResponse(status_code=status.HTTP_406_NOT_ACCEPTABLE)
     except UnsupportedMediaType:
         return JSONResponse(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+    except InvalidFileName:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content="Bad filename. Expected JPG or PNG.")
     except Exception:
         traceback.print_exc(file=sys.stdout)
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -110,10 +112,16 @@ async def upload_app_img(id_app: int, db: Session = Depends(get_db), image: Uplo
 @router.get("/img/{id_app}", tags=["Backend AppStore"])
 async def get_app_img(id_app: int, db: Session = Depends(get_db)):
     try:
-        img = get_app_image(id_app, db)
-        if img is not None:
-            file = io.BytesIO(img.img)
-            return StreamingResponse(file, media_type="image/jpg")
+        img_model = get_app_image(id_app, db)
+        if img_model is not None:
+            file = io.BytesIO(img_model.img)
+
+            if img_model.filename.lower().endswith(".jpg"):
+                return StreamingResponse(file, media_type="image/jpeg")
+            elif img_model.filename.lower().endswith(".png"):
+                return StreamingResponse(file, media_type="image/png")
+            else:
+                raise Exception("illegal state of img model")
 
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"App with id = {id_app} was not found.")
     except Exception as e:

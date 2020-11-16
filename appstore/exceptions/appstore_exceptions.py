@@ -4,3 +4,7 @@ class UnsupportedMediaType(Exception):
 
 class InvalidFile(Exception):
     pass
+
+
+class InvalidFileName(Exception):
+    pass
