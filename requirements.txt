@@ -7,7 +7,6 @@ pydantic
 sqlalchemy
 psycopg2
 typing
-fastapi
 starlette
 DateTime
 python-multipart
