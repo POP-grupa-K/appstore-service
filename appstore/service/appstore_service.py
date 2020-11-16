@@ -73,11 +73,12 @@ def delete_app(id_app: int, db: Session) -> bool:
 
 def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
     app: AppStoreModel = get_app_model(app_id, db)
-    app_name_check: AppStoreModel = get_app_model_by_name(updated_app.name_app, db)
-    if app_name_check.id_app != app.id_app:
-        raise AppNameExists(f"App with name {updated_app.name_app} exists")
     if app is None:
         return False
+    app_name_check: AppStoreModel = get_app_model_by_name(updated_app.name_app, db)
+
+    if app_name_check is not None and app_name_check.id_app != app.id_app:
+        raise AppNameExists(f"App with name {updated_app.name_app} exists")
 
     app.name_app = updated_app.name_app
     app.date_update = datetime.now().isoformat()
