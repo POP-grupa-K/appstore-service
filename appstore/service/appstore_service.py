@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from appstore.exceptions.appstore_exceptions import ImageAlreadyExistsException, NoSuchAppException, \
-    NoSuchImageException
+    NoSuchImageException, AppNameExists
 from appstore.model.appstore_model import AppStoreModel
 from appstore.model.image_model import ImageModel
 from appstore.schema.appstore_schema import AppStoreSchema
@@ -16,6 +16,8 @@ from appstore.utils.mapper.appstore_mapper import appstore_model_to_schema
 
 def create_app(app: AppStoreSchema, db: Session) -> int:
     new_app = AppStoreModel.from_schema(app)
+    if get_app_model_by_name(new_app.name_app, db):
+        raise AppNameExists(f"App with name {new_app.name_app} exists")
     new_app.date_update = datetime.now().isoformat()
 
     db.add(new_app)
@@ -38,16 +40,25 @@ def get_all_apps_as_json_list(db: Session):
     return apps
 
 
-def get_app_model(id_app: int, db: Session):
-    app = db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app)
-    if app:
+def get_app_model_by_name(name: str, db: Session):
+    app = db.query(AppStoreModel).filter(AppStoreModel.name_app == name)
+    if app.first():
         return app.first()
     return None
 
 
-def get_app_json(id_app: int, db: Session):
+def get_app_model(id_app: int, db: Session):
+    app = db.query(AppStoreModel).filter(AppStoreModel.id_app == id_app)
+    if app.first():
+        return app.first()
+    return None
+
+
+def get_app_schema(id_app: int, db: Session):
     app_model = get_app_model(id_app, db)
-    return appstore_model_to_schema(app_model).json()
+    if app_model:
+        return appstore_model_to_schema(app_model)
+    raise NoSuchAppException(f"No application with id = {id_app}")
 
 
 def delete_app(id_app: int, db: Session) -> bool:
@@ -61,7 +72,10 @@ def delete_app(id_app: int, db: Session) -> bool:
 
 
 def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
-    app = get_app_model(app_id, db)
+    app: AppStoreModel = get_app_model(app_id, db)
+    app_name_check: AppStoreModel = get_app_model_by_name(updated_app.name_app, db)
+    if app_name_check.id_app != app.id_app:
+        raise AppNameExists(f"App with name {updated_app.name_app} exists")
     if app is None:
         return False
 

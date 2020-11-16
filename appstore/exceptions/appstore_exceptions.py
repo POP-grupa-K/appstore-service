@@ -20,3 +20,7 @@ class NoSuchAppException(Exception):
 
 class NoSuchImageException(Exception):
     pass
+
+
+class AppNameExists(Exception):
+    pass
