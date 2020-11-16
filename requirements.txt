@@ -6,5 +6,7 @@ uvicorn
 pydantic
 sqlalchemy
 psycopg2
-python-multipart
 typing
+fastapi
+starlette
+DateTime
