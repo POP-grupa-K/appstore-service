@@ -8,12 +8,13 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
-from appstore.exceptions.appstore_exceptions import UnsupportedMediaType, InvalidFileName
+from appstore.exceptions.appstore_exceptions import UnsupportedMediaTypeException, InvalidFileNameException, \
+    ImageAlreadyExistsException, NoSuchAppException, NoSuchImageException
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
 from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate, \
-    get_all_apps_as_json_list, get_app_json, save_app_image, get_app_image
-from appstore.utils.validator.file_validator import file_is_valid
+    get_all_apps_as_json_list, get_app_json, save_image, get_image, delete_image, update_image
+from appstore.utils.validator.file_validator import validate_image
 from run import SessionLocal
 from fastapi.responses import JSONResponse
 
@@ -96,15 +97,41 @@ async def get_app(id_app: int, db: Session = Depends(get_db)):
 @router.post("/img/{id_app}", tags=["Backend AppStore"])
 async def upload_app_img(id_app: int, db: Session = Depends(get_db), image: UploadFile = File(...)):
     try:
-        if file_is_valid(image) and save_app_image(id_app, image, db):
-            return JSONResponse(status_code=status.HTTP_200_OK, content="OK")
+        validate_image(image)
+        save_image(id_app, image, db)
+        return JSONResponse(status_code=status.HTTP_200_OK, content="OK")
 
-        return JSONResponse(status_code=status.HTTP_406_NOT_ACCEPTABLE)
-    except UnsupportedMediaType:
-        return JSONResponse(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-    except InvalidFileName:
+    except InvalidFileNameException:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content="Bad filename. Expected JPG or PNG.")
+    except NoSuchAppException:
+        return JSONResponse(status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                            content=f"App with id = {id_app} was not found.")
+    except ImageAlreadyExistsException:
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content="Image already exists.")
+    except UnsupportedMediaTypeException:
+        return JSONResponse(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
     except Exception:
+        traceback.print_exc(file=sys.stdout)
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.put("/img/{id_app}", tags=["Backend AppStore"])
+async def update_app_img(id_app: int, db: Session = Depends(get_db), image: UploadFile = File(...)):
+    try:
+        validate_image(image)
+        update_image(id_app, image, db)
+        return JSONResponse(status_code=status.HTTP_200_OK, content="OK")
+
+    except InvalidFileNameException:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content="Bad filename. Expected JPG or PNG.")
+    except NoSuchAppException:
+        return JSONResponse(status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                            content=f"App with id = {id_app} was not found.")
+    except ImageAlreadyExistsException:
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content="Image already exists.")
+    except UnsupportedMediaTypeException:
+        return JSONResponse(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+    except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -112,7 +139,7 @@ async def upload_app_img(id_app: int, db: Session = Depends(get_db), image: Uplo
 @router.get("/img/{id_app}", tags=["Backend AppStore"])
 async def get_app_img(id_app: int, db: Session = Depends(get_db)):
     try:
-        img_model = get_app_image(id_app, db)
+        img_model = get_image(id_app, db)
         if img_model is not None:
             file = io.BytesIO(img_model.img)
 
@@ -123,7 +150,20 @@ async def get_app_img(id_app: int, db: Session = Depends(get_db)):
             else:
                 raise Exception("illegal state of img model")
 
-        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=f"App with id = {id_app} was not found.")
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content="No such image")
+    except Exception as e:
+        traceback.print_exc(file=sys.stdout)
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.delete("/img/{id_app}", tags=["Backend AppStore"])
+async def delete_app_img(id_app: int, db: Session = Depends(get_db)):
+    try:
+        delete_image(id_app, db)
+        return JSONResponse(status_code=status.HTTP_200_OK, content="OK")
+
+    except NoSuchImageException:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content="No such image.")
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
