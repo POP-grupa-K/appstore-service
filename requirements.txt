@@ -10,3 +10,4 @@ typing
 fastapi
 starlette
 DateTime
+python-multipart

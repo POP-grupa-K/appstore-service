@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from typing import List
@@ -12,6 +14,7 @@ from appstore.utils.mapper.appstore_mapper import appstore_model_to_schema
 
 def create_app(app: AppStoreSchema, db: Session) -> int:
     new_app = AppStoreModel.from_schema(app)
+    new_app.date_update = datetime.now().isoformat()
 
     db.add(new_app)
     db.commit()
@@ -61,7 +64,7 @@ def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
         return False
 
     app.name_app = updated_app.name_app
-    app.date_update = updated_app.date_update
+    app.date_update = datetime.now().isoformat()
     app.description_app = updated_app.description_app
     app.ranking = updated_app.ranking
 

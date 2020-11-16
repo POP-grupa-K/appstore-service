@@ -8,11 +8,11 @@ class AppStoreModel(Base):
     __tablename__ = 'appstore'
 
     id_app = Column('idapp', Integer, primary_key=True)
-    name_app = Column(String)
+    name_app = Column('name', String)
     ranking = Column(Float)
-    date_update = Column(DateTime)
-    description_app = Column(String)
-    times_used = Column(Integer)
+    date_update = Column('dateupdate', DateTime)
+    description_app = Column('description', String)
+    times_used = Column('timesused', Integer)
 
     def __init__(self, name_app, ranking, date_update, description_app, times_used):
         self.name_app = name_app
