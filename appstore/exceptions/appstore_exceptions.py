@@ -1,10 +1,22 @@
-class UnsupportedMediaType(Exception):
+class UnsupportedMediaTypeException(Exception):
     pass
 
 
-class InvalidFile(Exception):
+class InvalidFileException(Exception):
     pass
 
 
-class InvalidFileName(Exception):
+class InvalidFileNameException(Exception):
+    pass
+
+
+class ImageAlreadyExistsException(Exception):
+    pass
+
+
+class NoSuchAppException(Exception):
+    pass
+
+
+class NoSuchImageException(Exception):
     pass

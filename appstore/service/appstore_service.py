@@ -4,6 +4,8 @@ from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from typing import List
 
+from appstore.exceptions.appstore_exceptions import ImageAlreadyExistsException, NoSuchAppException, \
+    NoSuchImageException
 from appstore.model.appstore_model import AppStoreModel
 from appstore.model.image_model import ImageModel
 from appstore.schema.appstore_schema import AppStoreSchema
@@ -83,10 +85,14 @@ def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> int:
     return new_rate.id_rating
 
 
-def save_app_image(app_id: int, image: UploadFile, db: Session):
+def save_image(app_id: int, image: UploadFile, db: Session):
+    # check if image already exists
+    if get_image(app_id, db) is not None:
+        raise ImageAlreadyExistsException
+
     # check if app exists
     if get_app_model(app_id, db) is None:
-        return False
+        raise NoSuchAppException
 
     # Cut filename because DB accepts only 50 characters
     cut_filename = image.filename[len(image.filename) - 50:]
@@ -97,8 +103,33 @@ def save_app_image(app_id: int, image: UploadFile, db: Session):
     return True
 
 
-def get_app_image(app_id: int, db: Session) -> ImageModel:
+def update_image(app_id: int, image: UploadFile, db: Session):
+    # check if exists
+    img = get_image(app_id, db)
+    if img is None:
+        raise NoSuchImageException
+
+    # delete old one
+    db.delete(img)
+    db.commit()
+
+    # create a new one
+    save_image(app_id, image, db)
+    db.commit()
+
+
+def get_image(app_id: int, db: Session) -> ImageModel:
     image = db.query(ImageModel).filter(ImageModel.id_app == app_id)
     if image is not None:
         return image.first()
     return image
+
+
+def delete_image(app_id: int, db: Session):
+    # check if image already exists
+    img = get_image(app_id, db)
+    if img is None:
+        raise NoSuchImageException
+
+    db.delete(img)
+    db.commit()

@@ -1,16 +1,16 @@
 from fastapi import UploadFile
 
-from appstore.exceptions.appstore_exceptions import InvalidFile, UnsupportedMediaType, InvalidFileName
+from appstore.exceptions.appstore_exceptions import InvalidFileException, UnsupportedMediaTypeException, InvalidFileNameException
 
 
-def file_is_valid(file: UploadFile) -> bool:
+def validate_image(file: UploadFile) -> bool:
     if file is None:
-        raise InvalidFile
+        raise InvalidFileException
 
     if file.content_type.lower() != "image/jpeg" and file.content_type.lower() != "image/png":
-        raise UnsupportedMediaType
+        raise UnsupportedMediaTypeException
 
     if file.filename is None or not (file.filename.lower().endswith(".jpg") or file.filename.lower().endswith(".png")):
-        raise InvalidFileName
+        raise InvalidFileNameException
 
     return True
