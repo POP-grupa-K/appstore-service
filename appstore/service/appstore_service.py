@@ -55,25 +55,11 @@ def get_app_model(id_app: int, db: Session):
     return None
 
 
-def get_rating_model(id_rating: int, db: Session):
-    rating = db.query(RatingModel).filter(RatingModel.id_rating == id_rating)
-    if rating.first():
-        return rating.first()
-    return None
-
-
 def get_app_schema(id_app: int, db: Session):
     app_model = get_app_model(id_app, db)
     if app_model:
         return appstore_model_to_schema(app_model)
     raise NoSuchAppException(f"No application with id = {id_app}")
-
-
-def get_rating_schema(id_rating: int, db: Session):
-    rating_model = get_rating_model(id_rating, db)
-    if rating_model:
-        return appstore_model_to_schema(rating_model)
-    raise NoSuchAppException(f"No application with id = {id_rating}")
 
 
 def delete_app(id_app: int, db: Session) -> bool:
@@ -129,7 +115,6 @@ def add_app_rate_and_update_average(app_id: int, rate: RatingSchema, db: Session
     return average
 
 
-
 def save_image(app_id: int, image: UploadFile, db: Session):
     # check if image already exists
     if get_image(app_id, db) is not None:
@@ -180,15 +165,16 @@ def delete_image(app_id: int, db: Session):
     db.commit()
 
 
-def get_ratings(app_uid: str, db: Session) -> List[RatingModel]:
+# Rating
+def get_ratings(app_uid: int, db: Session) -> List[RatingModel]:
     rating_models = db.query(RatingModel).filter(RatingModel.id_app == app_uid)
     return rating_models
 
 
-def get_ratings_as_json_list(app_uid: str, db: Session):
+def get_ratings_as_json_list(app_uid: int, db: Session):
     rating_models = get_ratings(app_uid, db)
 
     ratings = []
     for rating in rating_models:
-        ratings.append(appstore_model_to_schema(rating).json())
+        ratings.append(rating_model_to_schema(rating).json())
     return ratings

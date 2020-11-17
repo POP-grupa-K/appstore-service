@@ -7,7 +7,7 @@ from fastapi_camelcase import CamelModel
 class AppStoreSchema(CamelModel):
     id_app: Optional[int] = None
     name_app: str
-    ranking: Optional[int] = None
+    ranking: Optional[float] = None
     date_update: Optional[datetime] = None
     description_app: Optional[str] = None
     times_used: Optional[int] = 0

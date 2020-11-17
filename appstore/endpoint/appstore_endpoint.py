@@ -13,7 +13,8 @@ from appstore.exceptions.appstore_exceptions import UnsupportedMediaTypeExceptio
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
 from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate_and_update_average, \
-    get_all_apps_as_json_list, get_app_schema, save_image, get_image, delete_image, update_image
+    get_all_apps_as_json_list, get_app_schema, save_image, get_image, delete_image, update_image, \
+    get_ratings_as_json_list
 from appstore.utils.message_encoder.json_message_encoder import encode_to_json_message
 from appstore.utils.validator.file_validator import validate_image
 from run import SessionLocal
@@ -172,3 +173,13 @@ async def delete_app_img(id_app: int, db: Session = Depends(get_db)):
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# Rating
+@router.get("/rating/{app_uid}", tags=["AppStore Ratings"])
+async def get_ratings(app_uid: int, db: Session = Depends(get_db)):
+    ratings = get_ratings_as_json_list(app_uid, db)
+    if ratings is not None:
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(ratings))
+
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
