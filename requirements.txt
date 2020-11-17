@@ -7,6 +7,6 @@ pydantic
 sqlalchemy
 psycopg2
 typing
-starlette
+starlette==0.13.6
 DateTime
 python-multipart
