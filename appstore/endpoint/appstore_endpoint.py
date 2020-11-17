@@ -80,14 +80,6 @@ async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
 
 
-@router.post("/{id_app}/rate", tags=["Backend AppStore"])
-async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
-    res = add_app_rate_and_update_average(id_app, rate, db)
-    if res:
-        return JSONResponse(status_code=status.HTTP_200_OK, content=encode_to_json_message(res))
-    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 @router.get("/{id_app}", tags=["Backend AppStore"])
 async def get_app(id_app: int, db: Session = Depends(get_db)):
     try:
@@ -176,6 +168,14 @@ async def delete_app_img(id_app: int, db: Session = Depends(get_db)):
 
 
 # Rating
+@router.post("/{id_app}/rate", tags=["Backend AppStore"])
+async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
+    res = add_app_rate_and_update_average(id_app, rate, db)
+    if res:
+        return JSONResponse(status_code=status.HTTP_200_OK, content=encode_to_json_message(res))
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @router.get("/rating/app/{app_uid}", tags=["AppStore Ratings"])
 async def get_ratings(app_uid: int, db: Session = Depends(get_db)):
     ratings = get_ratings_as_json_list(app_uid, db)
