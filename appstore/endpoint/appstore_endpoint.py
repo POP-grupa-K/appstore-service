@@ -9,11 +9,12 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from appstore.exceptions.appstore_exceptions import UnsupportedMediaTypeException, InvalidFileNameException, \
-    ImageAlreadyExistsException, NoSuchAppException, NoSuchImageException, AppNameExists
+    ImageAlreadyExistsException, NoSuchAppException, NoSuchImageException, AppNameExists, NoSuchRatingException
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
-from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate, \
-    get_all_apps_as_json_list, get_app_schema, save_image, get_image, delete_image, update_image
+from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate_and_update_average, \
+    get_all_apps_as_json_list, get_app_schema, save_image, get_image, delete_image, update_image, \
+    get_ratings_as_json_list, delete_rating, update_rating_and_average, get_rating
 from appstore.utils.message_encoder.json_message_encoder import encode_to_json_message
 from appstore.utils.validator.file_validator import validate_image
 from run import SessionLocal
@@ -77,14 +78,6 @@ async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db
     except Exception as e:
         print(e)
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
-
-
-@router.post("/{id_app}/rate", tags=["Backend AppStore"])
-async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
-    res = add_app_rate(id_app, rate, db)
-    if res:
-        return JSONResponse(status_code=status.HTTP_200_OK, content=encode_to_json_message(res))
-    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.get("/{id_app}", tags=["Backend AppStore"])
@@ -172,3 +165,55 @@ async def delete_app_img(id_app: int, db: Session = Depends(get_db)):
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# Rating
+@router.post("/{id_app}/rate", tags=["Backend AppStore"])
+async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
+    res = add_app_rate_and_update_average(id_app, rate, db)
+    if res:
+        return JSONResponse(status_code=status.HTTP_200_OK, content=encode_to_json_message(res))
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.get("/rating/app/{app_uid}", tags=["AppStore Ratings"])
+async def get_ratings(app_uid: int, db: Session = Depends(get_db)):
+    ratings = get_ratings_as_json_list(app_uid, db)
+    if ratings is not None:
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(ratings))
+
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.delete("/rating/{rating_id}", tags=["AppStore Ratings"])
+async def delete_rating_by_id(rating_id: int, db: Session = Depends(get_db)):
+    try:
+        delete_rating(rating_id, db)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=encode_to_json_message("OK"))
+
+    except NoSuchRatingException:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=encode_to_json_message("No such rating."))
+    except Exception as e:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.put("/rating/{rating_id}", tags=["AppStore Ratings"])
+async def put_rating(rating_id: int, rating: RatingSchema, db: Session = Depends(get_db)):
+    try:
+        is_updated = update_rating_and_average(rating_id, rating, db)
+        if is_updated is not None and is_updated:
+            return JSONResponse(status_code=status.HTTP_200_OK, content=encode_to_json_message(rating_id))
+
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=encode_to_json_message(f"Rating with id = {rating_id} was not found."))
+    except Exception as e:
+        print(e)
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
+
+
+@router.get("/rating/{rating_id}", tags=["AppStore Ratings"])
+async def get_ratings(rating_id: int, db: Session = Depends(get_db)):
+    rating = get_rating(rating_id, db)
+    if rating is not None:
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(rating))
+
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

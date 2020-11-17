@@ -5,13 +5,14 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from appstore.exceptions.appstore_exceptions import ImageAlreadyExistsException, NoSuchAppException, \
-    NoSuchImageException, AppNameExists
+    NoSuchImageException, AppNameExists, NoSuchRatingException
 from appstore.model.appstore_model import AppStoreModel
 from appstore.model.image_model import ImageModel
 from appstore.schema.appstore_schema import AppStoreSchema
 from appstore.model.rating_model import RatingModel
 from appstore.schema.rating_schema import RatingSchema
 from appstore.utils.mapper.appstore_mapper import appstore_model_to_schema
+from appstore.utils.mapper.rating_mapper import rating_model_to_schema
 
 
 def create_app(app: AppStoreSchema, db: Session) -> int:
@@ -88,16 +89,31 @@ def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
     db.commit()
     return True
 
+def get_app_rates_by_id(app_id: int, db: Session):
+    rating_models = db.query(RatingModel).filter(RatingModel.id_app == app_id)
+    return rating_models
 
-def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> int:
+def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> bool:
+    rate.id_app = app_id
     new_rate = RatingModel.from_schema(rate)
-
     db.add(new_rate)
     db.commit()
-    db.refresh(new_rate)
 
+    return True
+
+
+def add_app_rate_and_update_average(app_id: int, rate: RatingSchema, db: Session) -> int:
+    add_app_rate(app_id, rate, db)
+    rating_models = get_app_rates_by_id(app_id, db)
+    average = 0.0
+    for rating in rating_models:
+        average += rating.value
+    average /= rating_models.count()
+    app: AppStoreModel = get_app_model(app_id, db)
+    app.ranking = average
     db.commit()
-    return new_rate.id_rating
+
+    return average
 
 
 def save_image(app_id: int, image: UploadFile, db: Session):
@@ -140,6 +156,13 @@ def get_image(app_id: int, db: Session) -> ImageModel:
     return image
 
 
+def get_rating(rating_id: int, db: Session) -> RatingModel:
+    rating = db.query(RatingModel).filter(RatingModel.id_rating == rating_id)
+    if rating is not None:
+        return rating.first()
+    return rating
+
+
 def delete_image(app_id: int, db: Session):
     # check if image already exists
     img = get_image(app_id, db)
@@ -147,4 +170,63 @@ def delete_image(app_id: int, db: Session):
         raise NoSuchImageException
 
     db.delete(img)
+    db.commit()
+
+
+def delete_rating(rating_id: int, db: Session):
+    # check if rating already exists
+    rating = get_rating(rating_id, db)
+    if rating is None:
+        raise NoSuchRatingException
+
+    db.delete(rating)
+    db.commit()
+
+
+# Rating
+def get_ratings(app_uid: int, db: Session) -> List[RatingModel]:
+    rating_models = db.query(RatingModel).filter(RatingModel.id_app == app_uid)
+    return rating_models
+
+
+def get_ratings_as_json_list(app_uid: int, db: Session):
+    rating_models = get_ratings(app_uid, db)
+
+    ratings = []
+    for rating in rating_models:
+        ratings.append(rating_model_to_schema(rating).json())
+    return ratings
+
+
+def update_rating_and_average(rating_id: int, updated_rating: RatingSchema, db: Session) -> bool:
+    rating: RatingModel = get_rating(rating_id, db)
+    if rating is None:
+        return False
+
+    # old_id = rating.id_app
+
+    rating.date_update = datetime.now().isoformat()
+    rating.value = updated_rating.value
+    rating.comm = updated_rating.comm
+
+    update_average(rating.id_app, db)
+
+    # if old_id != rating.id_app:
+    #     update_average(old_id, db)
+
+    db.commit()
+    return True
+
+
+def update_average(app_id: int, db: Session):
+    rating_models = get_app_rates_by_id(app_id, db)
+    if rating_models.count() == 0:
+        return
+    average = 0.0
+    for rating in rating_models:
+        average += rating.value
+    average /= rating_models.count()
+    app: AppStoreModel = get_app_model(app_id, db)
+    app.ranking = average
+
     db.commit()
