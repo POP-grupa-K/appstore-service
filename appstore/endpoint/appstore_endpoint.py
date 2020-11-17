@@ -176,7 +176,7 @@ async def delete_app_img(id_app: int, db: Session = Depends(get_db)):
 
 
 # Rating
-@router.get("/rating/{app_uid}", tags=["AppStore Ratings"])
+@router.get("/rating/app/{app_uid}", tags=["AppStore Ratings"])
 async def get_ratings(app_uid: int, db: Session = Depends(get_db)):
     ratings = get_ratings_as_json_list(app_uid, db)
     if ratings is not None:
