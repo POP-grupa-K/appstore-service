@@ -101,6 +101,7 @@ def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> bool:
 
     return True
 
+
 def add_app_rate_and_update_average(app_id: int, rate: RatingSchema, db: Session) -> int:
     add_app_rate(app_id, rate, db)
     rating_models = get_app_rates_by_id(app_id, db)
@@ -195,3 +196,37 @@ def get_ratings_as_json_list(app_uid: int, db: Session):
     for rating in rating_models:
         ratings.append(rating_model_to_schema(rating).json())
     return ratings
+
+
+def update_rating_and_average(rating_id: int, updated_rating: RatingSchema, db: Session) -> bool:
+    rating: RatingModel = get_rating(rating_id, db)
+    if rating is None:
+        return False
+
+    # old_id = rating.id_app
+
+    rating.date_update = datetime.now().isoformat()
+    rating.value = updated_rating.value
+    rating.comm = updated_rating.comm
+
+    update_average(rating.id_app, db)
+
+    # if old_id != rating.id_app:
+    #     update_average(old_id, db)
+
+    db.commit()
+    return True
+
+
+def update_average(app_id: int, db: Session):
+    rating_models = get_app_rates_by_id(app_id, db)
+    if rating_models.count() == 0:
+        return
+    average = 0.0
+    for rating in rating_models:
+        average += rating.value
+    average /= rating_models.count()
+    app: AppStoreModel = get_app_model(app_id, db)
+    app.ranking = average
+
+    db.commit()
