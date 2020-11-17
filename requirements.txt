@@ -7,6 +7,6 @@ uvicorn
 pydantic
 sqlalchemy
 psycopg2
-typing:
+typing
 DateTime
 python-multipart
