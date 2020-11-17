@@ -1,4 +1,5 @@
 str
+starlette==0.13.6
 fastapi
 pyhumps
 fastapi_camelcase
@@ -7,6 +8,5 @@ pydantic
 sqlalchemy
 psycopg2
 typing
-starlette
 DateTime
 python-multipart
