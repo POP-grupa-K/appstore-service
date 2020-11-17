@@ -55,11 +55,25 @@ def get_app_model(id_app: int, db: Session):
     return None
 
 
+def get_rating_model(id_rating: int, db: Session):
+    rating = db.query(RatingModel).filter(RatingModel.id_rating == id_rating)
+    if rating.first():
+        return rating.first()
+    return None
+
+
 def get_app_schema(id_app: int, db: Session):
     app_model = get_app_model(id_app, db)
     if app_model:
         return appstore_model_to_schema(app_model)
     raise NoSuchAppException(f"No application with id = {id_app}")
+
+
+def get_rating_schema(id_rating: int, db: Session):
+    rating_model = get_rating_model(id_rating, db)
+    if rating_model:
+        return appstore_model_to_schema(rating_model)
+    raise NoSuchAppException(f"No application with id = {id_rating}")
 
 
 def delete_app(id_app: int, db: Session) -> bool:
