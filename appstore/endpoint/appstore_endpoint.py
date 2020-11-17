@@ -12,7 +12,7 @@ from appstore.exceptions.appstore_exceptions import UnsupportedMediaTypeExceptio
     ImageAlreadyExistsException, NoSuchAppException, NoSuchImageException, AppNameExists
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
-from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate, \
+from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate_and_update_average, \
     get_all_apps_as_json_list, get_app_schema, save_image, get_image, delete_image, update_image
 from appstore.utils.message_encoder.json_message_encoder import encode_to_json_message
 from appstore.utils.validator.file_validator import validate_image
@@ -81,7 +81,7 @@ async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db
 
 @router.post("/{id_app}/rate", tags=["Backend AppStore"])
 async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
-    res = add_app_rate(id_app, rate, db)
+    res = add_app_rate_and_update_average(id_app, rate, db)
     if res:
         return JSONResponse(status_code=status.HTTP_200_OK, content=encode_to_json_message(res))
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

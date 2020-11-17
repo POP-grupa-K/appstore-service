@@ -12,6 +12,7 @@ from appstore.schema.appstore_schema import AppStoreSchema
 from appstore.model.rating_model import RatingModel
 from appstore.schema.rating_schema import RatingSchema
 from appstore.utils.mapper.appstore_mapper import appstore_model_to_schema
+from appstore.utils.mapper.rating_mapper import rating_model_to_schema
 
 
 def create_app(app: AppStoreSchema, db: Session) -> int:
@@ -88,16 +89,31 @@ def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
     db.commit()
     return True
 
+def get_app_rates_by_id(app_id: int, db: Session):
+    rating_models = db.query(RatingModel).filter(RatingModel.id_app == app_id)
+    return rating_models
 
-def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> int:
+def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> bool:
+    rate.id_app = app_id
     new_rate = RatingModel.from_schema(rate)
-
     db.add(new_rate)
     db.commit()
-    db.refresh(new_rate)
 
+    return True
+
+def add_app_rate_and_update_average(app_id: int, rate: RatingSchema, db: Session) -> int:
+    add_app_rate(app_id, rate, db)
+    rating_models = get_app_rates_by_id(app_id, db)
+    average = 0.0
+    for rating in rating_models:
+        average += rating.value
+    average /= rating_models.count()
+    app: AppStoreModel = get_app_model(app_id, db)
+    app.ranking = average
     db.commit()
-    return new_rate.id_rating
+
+    return average
+
 
 
 def save_image(app_id: int, image: UploadFile, db: Session):
