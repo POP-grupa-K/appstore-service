@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from starlette.middleware.cors import CORSMiddleware
 
-from appstore.endpoint import appstore_endpoint
+from appstore.endpoint import appstore_endpoint, rating_manager
 
 app = FastAPI(title="System obliczeń wysokoskalowych")
 
@@ -21,6 +21,7 @@ origins = [
 
 if __name__ == "__main__":
     app.include_router(appstore_endpoint.router, prefix="/appstore")
+    app.include_router(rating_manager.router, prefix="/rating")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,

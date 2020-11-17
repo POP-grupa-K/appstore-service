@@ -178,3 +178,17 @@ def delete_image(app_id: int, db: Session):
 
     db.delete(img)
     db.commit()
+
+
+def get_ratings(app_uid: str, db: Session) -> List[RatingModel]:
+    rating_models = db.query(RatingModel).filter(RatingModel.id_app == app_uid)
+    return rating_models
+
+
+def get_ratings_as_json_list(app_uid: str, db: Session):
+    rating_models = get_ratings(app_uid, db)
+
+    ratings = []
+    for rating in rating_models:
+        ratings.append(appstore_model_to_schema(rating).json())
+    return ratings
