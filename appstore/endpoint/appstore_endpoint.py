@@ -9,12 +9,12 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from appstore.exceptions.appstore_exceptions import UnsupportedMediaTypeException, InvalidFileNameException, \
-    ImageAlreadyExistsException, NoSuchAppException, NoSuchImageException, AppNameExists
+    ImageAlreadyExistsException, NoSuchAppException, NoSuchImageException, AppNameExists, NoSuchRatingException
 from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
 from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate_and_update_average, \
     get_all_apps_as_json_list, get_app_schema, save_image, get_image, delete_image, update_image, \
-    get_ratings_as_json_list
+    get_ratings_as_json_list, delete_rating
 from appstore.utils.message_encoder.json_message_encoder import encode_to_json_message
 from appstore.utils.validator.file_validator import validate_image
 from run import SessionLocal
@@ -183,3 +183,15 @@ async def get_ratings(app_uid: int, db: Session = Depends(get_db)):
         return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(ratings))
 
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@router.delete("/rating/{rating_id}", tags=["AppStore Ratings"])
+async def delete_rating_by_id(rating_id: int, db: Session = Depends(get_db)):
+    try:
+        delete_rating(rating_id, db)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=encode_to_json_message("OK"))
+
+    except NoSuchRatingException:
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=encode_to_json_message("No such rating."))
+    except Exception as e:
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

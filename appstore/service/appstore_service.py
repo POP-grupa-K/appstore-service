@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from appstore.exceptions.appstore_exceptions import ImageAlreadyExistsException, NoSuchAppException, \
-    NoSuchImageException, AppNameExists
+    NoSuchImageException, AppNameExists, NoSuchRatingException
 from appstore.model.appstore_model import AppStoreModel
 from appstore.model.image_model import ImageModel
 from appstore.schema.appstore_schema import AppStoreSchema
@@ -155,6 +155,13 @@ def get_image(app_id: int, db: Session) -> ImageModel:
     return image
 
 
+def get_rating(rating_id: int, db: Session) -> RatingModel:
+    rating = db.query(RatingModel).filter(RatingModel.id_rating == rating_id)
+    if rating is not None:
+        return rating.first()
+    return rating
+
+
 def delete_image(app_id: int, db: Session):
     # check if image already exists
     img = get_image(app_id, db)
@@ -162,6 +169,16 @@ def delete_image(app_id: int, db: Session):
         raise NoSuchImageException
 
     db.delete(img)
+    db.commit()
+
+
+def delete_rating(rating_id: int, db: Session):
+    # check if rating already exists
+    rating = get_rating(rating_id, db)
+    if rating is None:
+        raise NoSuchRatingException
+
+    db.delete(rating)
     db.commit()
 
 

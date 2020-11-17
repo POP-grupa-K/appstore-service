@@ -24,3 +24,7 @@ class NoSuchImageException(Exception):
 
 class AppNameExists(Exception):
     pass
+
+
+class NoSuchRatingException(Exception):
+    pass
