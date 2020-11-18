@@ -8,5 +8,6 @@ def rating_model_to_schema(rating_model: RatingModel) -> RatingSchema:
         value=rating_model.value,
         id_app=rating_model.id_app,
         comm=rating_model.comm,
-        date_update=rating_model.date_update
+        date_update=rating_model.date_update,
+        id_user=rating_model.id_user
     )
