@@ -168,7 +168,7 @@ async def delete_app_img(id_app: int, db: Session = Depends(get_db)):
 
 
 # Rating
-@router.post("/{id_app}/rate", tags=["Backend AppStore"])
+@router.post("/{id_app}/rate", tags=["AppStore Ratings"])
 async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
     res = add_app_rate_and_update_average(id_app, rate, db)
     if res:
@@ -211,7 +211,7 @@ async def put_rating(rating_id: int, rating: RatingSchema, db: Session = Depends
 
 
 @router.get("/rating/{rating_id}", tags=["AppStore Ratings"])
-async def get_ratings(rating_id: int, db: Session = Depends(get_db)):
+async def get_rating_by_id(rating_id: int, db: Session = Depends(get_db)):
     rating = get_rating(rating_id, db)
     if rating is not None:
         return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(rating))

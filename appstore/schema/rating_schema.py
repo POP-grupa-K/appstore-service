@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic.main import BaseModel
+from fastapi_camelcase import CamelModel
 
 
-class RatingSchema(BaseModel):
+class RatingSchema(CamelModel):
     value: float = None
     id_rating: int = None
     id_app: Optional[int] = None
