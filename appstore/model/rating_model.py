@@ -13,11 +13,12 @@ class RatingModel(Base):
     id_app = Column('idapp', ForeignKey('appstore.idapp'))
     id_user = Column('iduser', Integer)
 
-    def __init__(self, value, comm, id_app):
+    def __init__(self, value, comm, id_app, id_user):
         self.value = value
         self.comm = comm
         self.id_app = id_app
+        self.id_user = id_user
 
     @classmethod
     def from_schema(cls, rating_schema: rating_schema.RatingSchema):
-        return cls(rating_schema.value, rating_schema.comm, rating_schema.id_app)
+        return cls(rating_schema.value, rating_schema.comm, rating_schema.id_app, rating_schema.id_user)
