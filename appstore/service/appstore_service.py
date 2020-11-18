@@ -187,6 +187,8 @@ def delete_rating(rating_id: int, db: Session):
 
     db.delete(rating)
     db.commit()
+    
+    update_average(rating.id_app, db)
 
 
 # Rating
