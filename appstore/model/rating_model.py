@@ -11,6 +11,7 @@ class RatingModel(Base):
     comm = Column('comm', String)
     date_update = Column('dateupdate', DateTime)
     id_app = Column('idapp', ForeignKey('appstore.idapp'))
+    id_user = Column('iduser', Integer)
 
     def __init__(self, value, comm, id_app):
         self.value = value

@@ -10,6 +10,7 @@ class RatingSchema(BaseModel):
     id_app: Optional[int] = None
     comm: Optional[str] = None
     date_update: Optional[datetime] = None
+    id_user: Optional[int] = None
 
     class Config:
         orm_mode = True
