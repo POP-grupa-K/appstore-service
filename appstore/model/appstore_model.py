@@ -1,4 +1,5 @@
 from sqlalchemy import String, Column, DateTime, Integer, Float
+from sqlalchemy.orm import relationship
 
 from appstore.schema import appstore_schema
 from run import Base
@@ -13,6 +14,7 @@ class AppStoreModel(Base):
     date_update = Column('dateupdate', DateTime)
     description_app = Column('description', String)
     times_used = Column('timesused', Integer)
+    ratings = relationship("RatingModel", cascade="all, delete")
 
     def __init__(self, name_app, ranking, date_update, description_app, times_used):
         self.name_app = name_app
