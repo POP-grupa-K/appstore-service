@@ -228,12 +228,11 @@ def update_rating_and_average(rating_id: int, updated_rating: RatingSchema, db: 
 
 def update_average(app_id: int, db: Session):
     rating_models = get_app_rates_by_id(app_id, db)
-    if rating_models.count() == 0:
-        return
     average = 0.0
-    for rating in rating_models:
-        average += rating.value
-    average /= rating_models.count()
+    if rating_models.count() != 0:
+        for rating in rating_models:
+            average += rating.value
+        average /= rating_models.count()
     app: AppStoreModel = get_app_model(app_id, db)
     app.ranking = average
 
