@@ -9,6 +9,7 @@ class RatingModel(Base):
     id_rating = Column('idrating', Integer, primary_key=True)
     value = Column('value', Float)
     comm = Column('comm', String)
+    date_update = Column('dateupdate', DateTime)
     id_app = Column('idapp', ForeignKey('appstore.idapp'))
 
     def __init__(self, value, comm, id_app):

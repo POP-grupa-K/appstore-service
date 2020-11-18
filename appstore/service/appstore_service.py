@@ -89,13 +89,16 @@ def update_app(app_id: int, updated_app: AppStoreSchema, db: Session) -> bool:
     db.commit()
     return True
 
+
 def get_app_rates_by_id(app_id: int, db: Session):
     rating_models = db.query(RatingModel).filter(RatingModel.id_app == app_id)
     return rating_models
 
+
 def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> bool:
     rate.id_app = app_id
     new_rate = RatingModel.from_schema(rate)
+    new_rate.date_update = datetime.now().isoformat()
     db.add(new_rate)
     db.commit()
 
