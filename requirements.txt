@@ -2,7 +2,7 @@ str
 starlette==0.13.6
 fastapi
 pyhumps
-fastapi_camelcase
+fastapi-camelcase
 uvicorn
 pydantic
 sqlalchemy
