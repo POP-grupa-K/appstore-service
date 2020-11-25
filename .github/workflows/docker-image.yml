@@ -11,10 +11,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-            - uses: actions/checkout@v2 # may be actions/checkout@v2 now
-            - name: Login to DockerHub Registry
-              run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USER }} --password-stdin
-            - name: Build the latest Docker image
-              run: docker build . --file Dockerfile --tag appstore:latest
-            - name: Push the latest Docker image
-              run: docker push popbalticlsc/appstore:latest
+#             - uses: actions/checkout@v2 # may be actions/checkout@v2 now
+#             - name: Login to DockerHub Registry
+#               run: echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USER }} --password-stdin
+#             - name: Build the latest Docker image
+#               run: docker build . --file Dockerfile --tag appstore:latest
+#             - name: Push the latest Docker image
+#               run: docker push popbalticlsc/appstore:latest
+            - name: Push to Docker Hub
+              uses: docker/build-push-action@v1
+              with:
+                username: ${{ secrets.DOCKER_HUB_USER }}
+                password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+                repository: popbalticlsc/appstore
+                tag_with_ref: true
