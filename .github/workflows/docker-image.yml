@@ -17,4 +17,4 @@ jobs:
             - name: Build the latest Docker image
               run: docker build . --file Dockerfile --tag appstore:latest
             - name: Push the latest Docker image
-              run: docker push popbalticlsc/appstore:latest
+              run: docker push appstore:latest
