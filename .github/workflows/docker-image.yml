@@ -24,6 +24,7 @@ jobs:
               uses: docker/build-push-action@v2
               with:
                 username: ${{ secrets.DOCKER_HUB_USER }}
-                password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+                password: ${{ secrets.APPSTORE_DOCKER_TOKEN }}
                 repository: popbalticlsc/appstore
                 tag_with_ref: false
+    
