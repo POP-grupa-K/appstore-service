@@ -11,7 +11,7 @@ class AppStoreSchema(CamelModel):
     date_update: Optional[datetime] = None
     description_app: Optional[str] = None
     times_used: Optional[int] = 0
-    status: Optional[str] = None
+    status: Optional[str] = "available"
     id_user: int
 
     class Config:
