@@ -13,7 +13,7 @@ from appstore.schema.appstore_schema import AppStoreSchema as AppStoreSchema
 from appstore.schema.rating_schema import RatingSchema
 from appstore.service.appstore_service import create_app, delete_app, update_app, add_app_rate_and_update_average, \
     get_all_apps_as_json_list, get_app_schema, save_image, get_image, delete_image, update_image, \
-    get_ratings_as_json_list, delete_rating, update_rating_and_average, get_rating, get_app_model_list_by_status
+    get_ratings_as_json_list, delete_rating, update_rating_and_average, get_rating
 from appstore.utils.db.db_config import get_db
 from appstore.utils.message_encoder.json_message_encoder import encode_to_json_message
 from appstore.utils.validator.file_validator import validate_image
