@@ -67,10 +67,8 @@ def delete_app(id_app: int, db: Session) -> bool:
     if app is None:
         return False
 
-    if get_image(id_app, db):
-        delete_image(id_app, db)
+    app.status = 'deleted'
 
-    db.delete(app)
     db.commit()
     return True
 

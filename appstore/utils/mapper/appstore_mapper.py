@@ -9,5 +9,7 @@ def appstore_model_to_schema(app_model: AppStoreModel) -> AppStoreSchema:
         ranking=app_model.ranking,
         date_update=app_model.date_update,
         description_app=app_model.description_app,
-        times_used=app_model.times_used
+        times_used=app_model.times_used,
+        status=app_model.status,
+        id_user=app_model.id_user
     )

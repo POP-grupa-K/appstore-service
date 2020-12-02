@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, LargeBinary, String
 
-from run import Base
+from appstore.utils.db.db_config import Base
 
 
 class ImageModel(Base):
