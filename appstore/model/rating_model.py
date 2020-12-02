@@ -1,6 +1,6 @@
 from sqlalchemy import String, Column, DateTime, Integer, ForeignKey, Float
 from appstore.schema import rating_schema
-from run import Base
+from appstore.utils.db.db_config import Base
 
 
 class RatingModel(Base):
