@@ -28,7 +28,7 @@ def create_app(app: AppStoreSchema, db: Session) -> int:
 
 
 def get_all_apps(db: Session) -> List[AppStoreModel]:
-    app_models = db.query(AppStoreModel).filter(AppStoreModel.status != "deleted")
+    app_models = db.query(AppStoreModel).filter(AppStoreModel.status == "available")
     return app_models
 
 
