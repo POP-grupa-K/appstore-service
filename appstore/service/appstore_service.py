@@ -32,12 +32,14 @@ def get_all_apps(db: Session) -> List[AppStoreModel]:
     return app_models
 
 
-def get_all_apps_as_json_list(db: Session):
-    app_models = get_all_apps(db)
+def get_all_apps_as_json_list(states: list, db: Session):
+    if type(states) is not list:
+        raise Exception("illegal argument: app_status")
 
     apps = []
-    for app in app_models:
-        apps.append(appstore_model_to_schema(app).json())
+    for app in db.query(AppStoreModel):
+        if app.status in states:
+            apps.append(appstore_model_to_schema(app).json())
     return apps
 
 
@@ -106,7 +108,7 @@ def add_app_rate(app_id: int, rate: RatingSchema, db: Session) -> bool:
     return True
 
 
-def add_app_rate_and_update_average(app_id: int, rate: RatingSchema, db: Session) -> int:
+def add_app_rate_and_update_average(app_id: int, rate: RatingSchema, db: Session) -> float:
     add_app_rate(app_id, rate, db)
     rating_models = get_app_rates_by_id(app_id, db)
     average = 0.0

@@ -23,8 +23,13 @@ router = APIRouter()
 
 
 @router.get("/", tags=["Backend AppStore"])
-async def list_apps(db: Session = Depends(get_db)):
-    apps = get_all_apps_as_json_list(db)
+async def list_apps(states: str, db: Session = Depends(get_db)):
+    if states is None:
+        states = ['available']
+    else:
+        states = [x.strip() for x in states.split(',')]
+
+    apps = get_all_apps_as_json_list(states, db)
     if apps is not None:
         return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(apps))
 
@@ -32,7 +37,7 @@ async def list_apps(db: Session = Depends(get_db)):
 
 
 @router.post("/", tags=["Backend AppStore"])
-async def add_app(app: AppStoreSchema, db: Session = Depends(get_db)) -> str:
+async def add_app(app: AppStoreSchema, db: Session = Depends(get_db)):
     try:
         app_id = create_app(app, db)
         return JSONResponse(status_code=status.HTTP_201_CREATED, content=encode_to_json_message(app_id))
