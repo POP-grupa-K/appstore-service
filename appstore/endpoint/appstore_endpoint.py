@@ -23,7 +23,7 @@ router = APIRouter()
 
 
 @router.get("/", tags=["Backend AppStore"])
-async def list_apps(states: str, db: Session = Depends(get_db)):
+async def list_apps(states: str = None, db: Session = Depends(get_db)):
     if states is None:
         states = ['available']
     else:
