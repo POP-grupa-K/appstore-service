@@ -22,7 +22,7 @@ from fastapi.responses import JSONResponse
 router = APIRouter()
 
 
-@router.get("/", tags=["Backend AppStore"])
+@router.get("/", tags=["Backend AppStore - IAppStoreCrud"])
 async def list_apps(states: str = None, db: Session = Depends(get_db)):
     if states is None:
         states = ['available']
@@ -36,7 +36,7 @@ async def list_apps(states: str = None, db: Session = Depends(get_db)):
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@router.post("/", tags=["Backend AppStore"])
+@router.post("/", tags=["Backend AppStore - IAppStoreCrud"])
 async def add_app(app: AppStoreSchema, db: Session = Depends(get_db)):
     try:
         app_id = create_app(app, db)
@@ -48,7 +48,7 @@ async def add_app(app: AppStoreSchema, db: Session = Depends(get_db)):
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
 
 
-@router.delete("/{id_app}", tags=["Backend AppStore"])
+@router.delete("/{id_app}", tags=["Backend AppStore - IAppStoreCrud"])
 async def remove_app(id_app: int, db: Session = Depends(get_db)):
     try:
         is_deleted = delete_app(id_app, db)
@@ -61,7 +61,7 @@ async def remove_app(id_app: int, db: Session = Depends(get_db)):
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
 
 
-@router.put("/{id_app}", tags=["Backend AppStore"])
+@router.put("/{id_app}", tags=["Backend AppStore - IAppStoreCrud"])
 async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db)):
     try:
         is_updated = update_app(id_app, app, db)
@@ -76,7 +76,7 @@ async def put_app(id_app: int, app: AppStoreSchema, db: Session = Depends(get_db
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
 
 
-@router.get("/{id_app}", tags=["Backend AppStore"])
+@router.get("/{id_app}", tags=["Backend AppStore - IAppStoreCrud"])
 async def get_app(id_app: int, db: Session = Depends(get_db)):
     try:
         app: AppStoreSchema = get_app_schema(id_app, db)
@@ -88,7 +88,7 @@ async def get_app(id_app: int, db: Session = Depends(get_db)):
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
 
 
-@router.post("/img/{id_app}", tags=["Backend AppStore"])
+@router.post("/img/{id_app}", tags=["Backend AppStore - IAppStoreCrud"])
 async def upload_app_img(id_app: int, db: Session = Depends(get_db), image: UploadFile = File(...)):
     try:
         validate_image(image)
@@ -109,7 +109,7 @@ async def upload_app_img(id_app: int, db: Session = Depends(get_db), image: Uplo
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@router.put("/img/{id_app}", tags=["Backend AppStore"])
+@router.put("/img/{id_app}", tags=["Backend AppStore - IAppStoreCrud"])
 async def update_app_img(id_app: int, db: Session = Depends(get_db), image: UploadFile = File(...)):
     try:
         validate_image(image)
@@ -130,7 +130,7 @@ async def update_app_img(id_app: int, db: Session = Depends(get_db), image: Uplo
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@router.get("/img/{id_app}", tags=["Backend AppStore"])
+@router.get("/img/{id_app}", tags=["Backend AppStore - IAppStoreCrud"])
 async def get_app_img(id_app: int, db: Session = Depends(get_db)):
     try:
         img_model = get_image(id_app, db)
@@ -150,7 +150,7 @@ async def get_app_img(id_app: int, db: Session = Depends(get_db)):
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@router.delete("/img/{id_app}", tags=["Backend AppStore"])
+@router.delete("/img/{id_app}", tags=["Backend AppStore - IAppStoreCrud"])
 async def delete_app_img(id_app: int, db: Session = Depends(get_db)):
     try:
         delete_image(id_app, db)
@@ -164,7 +164,7 @@ async def delete_app_img(id_app: int, db: Session = Depends(get_db)):
 
 
 # Rating
-@router.post("/{id_app}/rate", tags=["AppStore Ratings"])
+@router.post("/{id_app}/rate", tags=["Backend Ratings - IAppStoreCrud"])
 async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db)):
     res = add_app_rate_and_update_average(id_app, rate, db)
     if res:
@@ -172,7 +172,7 @@ async def rate_app(id_app: int, rate: RatingSchema, db: Session = Depends(get_db
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@router.get("/rating/app/{app_uid}", tags=["AppStore Ratings"])
+@router.get("/rating/app/{app_uid}", tags=["Backend Ratings - IAppStoreCrud"])
 async def get_ratings(app_uid: int, db: Session = Depends(get_db)):
     ratings = get_ratings_as_json_list(app_uid, db)
     if ratings is not None:
@@ -181,7 +181,7 @@ async def get_ratings(app_uid: int, db: Session = Depends(get_db)):
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@router.delete("/rating/{rating_id}", tags=["AppStore Ratings"])
+@router.delete("/rating/{rating_id}", tags=["Backend Ratings - IAppStoreCrud"])
 async def delete_rating_by_id(rating_id: int, db: Session = Depends(get_db)):
     try:
         delete_rating(rating_id, db)
@@ -193,7 +193,7 @@ async def delete_rating_by_id(rating_id: int, db: Session = Depends(get_db)):
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@router.put("/rating/{rating_id}", tags=["AppStore Ratings"])
+@router.put("/rating/{rating_id}", tags=["Backend Ratings - IAppStoreCrud"])
 async def put_rating(rating_id: int, rating: RatingSchema, db: Session = Depends(get_db)):
     try:
         is_updated = update_rating_and_average(rating_id, rating, db)
@@ -206,7 +206,7 @@ async def put_rating(rating_id: int, rating: RatingSchema, db: Session = Depends
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=encode_to_json_message(e))
 
 
-@router.get("/rating/{rating_id}", tags=["AppStore Ratings"])
+@router.get("/rating/{rating_id}", tags=["Backend Ratings - IAppStoreCrud"])
 async def get_rating_by_id(rating_id: int, db: Session = Depends(get_db)):
     rating = get_rating(rating_id, db)
     if rating is not None:
